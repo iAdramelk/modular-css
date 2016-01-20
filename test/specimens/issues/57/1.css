@@ -1,0 +1,5 @@
+@value small from "./2.css";
+
+@media small {
+    .one { color: red; }
+}
