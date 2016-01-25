@@ -16,11 +16,7 @@ describe("modular-css", function() {
             .then(function(result) {
                 assert.equal(
                     result.css,
-                    "/* test/specimens/issues/76.css */\n" +
-                    ".mc9e096591_aooga {\n" +
-                    "    color: red;\n" +
-                    "    *color: blue\n" +
-                    "}\n"
+                    "/* test/specimens/issues/76.css */.mc9e096591_aooga { color: red; *color: blue; }"
                 );
                 
                 done();

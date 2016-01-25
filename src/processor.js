@@ -143,10 +143,21 @@ Processor.prototype = {
             files = opts.files || this.dependencies();
         
         files.forEach(function(dep) {
-            var css;
+            var css = postcss.root(),
+                result;
             
             // Insert a comment w/ the file we're doing
-            root.append(postcss.comment({ text : dep }));
+            css.append(postcss.comment({ text : dep }));
+            
+            // Doing this instead of just css.append() because we don't want
+            // things automatically cleaned up
+            //
+            // See https://github.com/postcss/postcss/issues/715
+            self._files[dep].result.root.nodes.forEach(function(node) {
+                node.parent = undefined;
+                
+                css.append(node); 
+            });
             
             // Rewrite relative URLs before adding
             // Have to do this every time because target file might be different!
@@ -154,19 +165,15 @@ Processor.prototype = {
             // modifies the .result root itself and you process URLs multiple times
             //
             // See https://github.com/tivac/modular-css/issues/35
-            css = urls.process(self._files[dep].result.root.clone(), assign({}, self._options, {
+            result = urls.process(css, assign({}, self._options, {
                 from : dep,
                 to   : opts.to
             }));
             
-            // Doing this instead of just root.append(css.root) because we don't want
-            // things automatically cleaned up
-            //
-            // See https://github.com/postcss/postcss/issues/715
-            css.root.nodes.forEach(function(node) {
+            result.root.nodes.forEach(function(node) {
                 node.parent = undefined;
                 
-                root.append(node); 
+                root.append(node);
             });
         });
         
