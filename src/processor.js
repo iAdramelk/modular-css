@@ -152,13 +152,22 @@ Processor.prototype = {
             // Have to do this every time because target file might be different!
             // NOTE: the call to .clone() is really important here, otherwise this call
             // modifies the .result root itself and you process URLs multiple times
+            //
             // See https://github.com/tivac/modular-css/issues/35
             css = urls.process(self._files[dep].result.root.clone(), assign({}, self._options, {
                 from : dep,
                 to   : opts.to
             }));
             
-            root.append(css.root);
+            // Doing this instead of just root.append(css.root) because we don't want
+            // things automatically cleaned up
+            //
+            // See https://github.com/postcss/postcss/issues/715
+            css.root.nodes.forEach(function(node) {
+                node.parent = undefined;
+                
+                root.append(node); 
+            });
         });
         
         return this._after.process(root, assign({}, self._options, args || {}));
