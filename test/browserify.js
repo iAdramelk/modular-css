@@ -132,7 +132,9 @@ describe("modular-css", function() {
                     entries : from("require('./test/specimens/start.css');")
                 });
             
-            build.plugin(plugin, { css : "./test/output/browserify/include-css-deps.css" });
+            build.plugin(plugin, {
+                css : "./test/output/browserify/include-css-deps.css"
+            });
             
             bundle(build, function(out) {
                 assert(out.indexOf(fs.readFileSync("./test/results/browserify/include-css-deps.js", "utf8")) > -1);

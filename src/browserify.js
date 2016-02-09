@@ -148,10 +148,14 @@ module.exports = function(browserify, opts) {
         
         bundler = current;
         
+        console.log("Bundling");
+        
         // Listen for bundling to finish
         bundler.on("end", function() {
             var bundling = Object.keys(bundles).length > 0,
                 common;
+                
+            console.log("Bundling complete");
                 
             if(options.json) {
                 mkdirp.sync(path.dirname(options.json));
@@ -197,6 +201,10 @@ module.exports = function(browserify, opts) {
                         files : files,
                         to    : dest
                     }).then(function(result) {
+                        result.warnings().forEach(function(warning) {
+                            bundler.emit("error", new Error(warning.toString()));
+                        });
+                        
                         fs.writeFileSync(dest, result.css);
                     });
                 });
@@ -214,6 +222,8 @@ module.exports = function(browserify, opts) {
                 files : bundling && common,
                 to    : options.css
             }).then(function(result) {
+                result.warnings().forEach(bundler.emit.bind(bundler, "error"));
+                
                 fs.writeFileSync(options.css, result.css);
             });
         });
