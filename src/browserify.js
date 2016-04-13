@@ -16,9 +16,10 @@ var fs   = require("fs"),
 
 module.exports = function(browserify, opts) {
     var options = assign({
-            ext : ".css",
-            map : browserify._options.debug,
-            cwd : browserify._options.basedir || process.cwd()
+            ext    : ".css",
+            map    : browserify._options.debug,
+            cwd    : browserify._options.basedir || process.cwd(),
+            global : false
         }, opts),
         
         processor = new Processor(options),
@@ -43,7 +44,7 @@ module.exports = function(browserify, opts) {
         return sink.str(function(buffer, done) {
             var push = this.push.bind(this),
                 real = fs.realpathSync(file);
-            
+                
             processor.string(real, buffer).then(
                 function(result) {
                     // Tell watchers about dependencies by emitting "file" events
@@ -69,7 +70,7 @@ module.exports = function(browserify, opts) {
                 }
             );
         });
-    });
+    }, { global : options.global });
     
     // Splice ourselves as early as possible into the deps pipeline
     browserify.pipeline.get("deps").splice(1, 0, through.obj(function(row, enc, done) {
